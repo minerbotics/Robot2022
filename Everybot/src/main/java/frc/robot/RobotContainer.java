@@ -6,9 +6,21 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.Constants.IOConstants;
+import frc.robot.Constants.OIConstants;
+import frc.robot.commands.ArcadeDrive;
+import frc.robot.commands.AutoDrive;
+import frc.robot.commands.FeedIn;
+import frc.robot.commands.FeedOut;
+import frc.robot.commands.FeedStop;
+import frc.robot.commands.LowerArm;
+import frc.robot.commands.RaiseArm;
+import frc.robot.commands.StopArm;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -18,12 +30,40 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final DriveTrain m_driveTrain;
+  private final Arm m_arm;
+  private final Intake m_intake;
 
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+  private final XboxController m_xboxController;
+
+  private final AutoDrive m_autoDrive;
+
+  private final ArcadeDrive m_driveCommand;
+  private final FeedIn m_inCommand;
+  private final FeedOut m_outCommand;
+  private final FeedStop m_feedStopCommand;
+  private final LowerArm m_lowerArmCommand;
+  private final RaiseArm m_raiseArmCommand;
+  private final StopArm m_stopArmCommand;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    m_driveTrain = new DriveTrain();
+    m_arm = new Arm();
+    m_intake = new Intake();
+
+    m_autoDrive = new AutoDrive(m_driveTrain, 1);
+
+    m_raiseArmCommand = new RaiseArm(m_arm);
+    m_lowerArmCommand = new LowerArm(m_arm);
+    m_stopArmCommand = new StopArm(m_arm);
+
+    m_inCommand = new FeedIn(m_intake);
+    m_outCommand = new FeedOut(m_intake);
+    m_feedStopCommand = new FeedStop(m_intake);
+
+    m_xboxController = new XboxController(IOConstants.kDriverControllerPort);
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -34,7 +74,12 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    new JoystickButton(m_xboxController, IOConstants.kYButton).whenPressed(m_raiseArmCommand).whenReleased(m_stopArmCommand);
+    new JoystickButton(m_xboxController, IOConstants.kAButton).whenPressed(m_lowerArmCommand).whenReleased(m_stopArmCommand);
+    new JoystickButton(m_xboxController, IOConstants.kRBButton).whenPressed(m_inCommand).whenReleased(m_feedStopCommand);
+    new JoystickButton(m_xboxController, IOConstants.kLBButton).whenPressed(m_outCommand).whenReleased(m_feedStopCommand);
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -43,6 +88,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+    return m_autoDrive;
   }
 }
