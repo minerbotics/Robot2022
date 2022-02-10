@@ -15,9 +15,15 @@ package frc.robot;
 public final class Constants {
     public final static class DriveConstants {
         public final static int kRightFrontMotorPort = 0;
-        public final static int kRightBackMotorPort = 0;
-        public final static int kLeftFrontMotorPort = 0;
-        public final static int kLeftBackMotorPort = 0;
+        public final static int kRightBackMotorPort = 1;
+        public final static int kLeftFrontMotorPort = 2;
+        public final static int kLeftBackMotorPort = 3;
+        public final static int[] kRightEncoderPorts = new int[] {0, 1};
+        public final static int[] kLeftEncoderPorts = new int[] {2, 3};
+
+        public final static int kEncoderCPR = 1024;
+        public final static double kWheelDiameterInches = 6;
+        public final static double kEncoderDistancePerPulse = (kWheelDiameterInches * Math.PI) / (double) kEncoderCPR;
     }
     public final static class ArmConstants {
         public final static int kArmMotor = 0;

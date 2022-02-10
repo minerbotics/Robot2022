@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 /** An example command that uses an example subsystem. */
 public class LowerArm extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final Arm m_subsystem;
+  private final Arm m_arm;
 
   /**
    * Creates a new ExampleCommand.
@@ -18,7 +18,7 @@ public class LowerArm extends CommandBase {
    * @param subsystem The subsystem used by this command.
    */
   public LowerArm(Arm subsystem) {
-    m_subsystem = subsystem;
+    m_arm = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
@@ -29,7 +29,9 @@ public class LowerArm extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    m_arm.lower();
+  }
 
   // Called once the command ends or is interrupted.
   @Override

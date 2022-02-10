@@ -7,8 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.IOConstants;
-import frc.robot.Constants.OIConstants;
-import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutoDrive;
 import frc.robot.commands.FeedIn;
 import frc.robot.commands.FeedOut;
@@ -38,7 +36,6 @@ public class RobotContainer {
 
   private final AutoDrive m_autoDrive;
 
-  private final ArcadeDrive m_driveCommand;
   private final FeedIn m_inCommand;
   private final FeedOut m_outCommand;
   private final FeedStop m_feedStopCommand;
