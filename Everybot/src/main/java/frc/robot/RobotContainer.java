@@ -21,8 +21,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
-import frc.robot.commands.ArcadeDrive;
-import frc.robot.commands.AutoDrive;
 import frc.robot.commands.FeedIn;
 import frc.robot.commands.FeedOut;
 import frc.robot.commands.FeedStop;
