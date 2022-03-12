@@ -20,7 +20,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void raise() {
-    m_armMotor.set(1);
+    m_armMotor.set(0.2);
   }
 
   public void stop() {
@@ -28,7 +28,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void lower() {
-    m_armMotor.set(-1);
+    m_armMotor.set(-0.2);
   }
 
   @Override

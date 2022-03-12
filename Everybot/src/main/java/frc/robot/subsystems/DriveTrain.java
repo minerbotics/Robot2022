@@ -100,9 +100,10 @@ public class DriveTrain extends SubsystemBase {
     m_odometry.resetPosition(pose, m_gyro.getRotation2d());
   }
 
-  public void arcadeDrive(double forward, double rotation) {
-    //rotation = rotation * 0.875;
-    m_drive.arcadeDrive(forward, rotation, true);
+  public void arcadeDrive(double rotation, double forward) {
+    rotation = rotation*0.5;
+    forward = forward*0.625;
+    m_drive.arcadeDrive(rotation, forward, true);
   }
 
    /**

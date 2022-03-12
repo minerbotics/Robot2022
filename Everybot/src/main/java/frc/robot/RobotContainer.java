@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.List;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -78,11 +79,13 @@ public class RobotContainer {
       new RunCommand(
           () ->
               m_driveTrain.arcadeDrive(
-                  -m_xboxController.getLeftY(), m_xboxController.getRightX()),
+                m_xboxController.getRightX(), -m_xboxController.getLeftY()),
           m_driveTrain));
 
     // Configure the button bindings
     configureButtonBindings();
+
+    CameraServer.startAutomaticCapture();
   }
 
   /**
