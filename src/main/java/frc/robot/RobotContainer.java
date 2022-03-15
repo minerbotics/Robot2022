@@ -19,6 +19,8 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
@@ -28,6 +30,8 @@ import frc.robot.commands.FeedStop;
 import frc.robot.commands.LowerArm;
 import frc.robot.commands.RaiseArm;
 import frc.robot.commands.StopArm;
+import frc.robot.commands.DumpAndBackUp;
+import frc.robot.commands.BackUp;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
@@ -57,6 +61,11 @@ public class RobotContainer {
   private final RaiseArm m_raiseArmCommand;
   private final StopArm m_stopArmCommand;
 
+  private final DumpAndBackUp m_dumpAndBackUpCommand;
+  private final BackUp m_backUpCommand;
+
+  public static SendableChooser<Command> m_chooser;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     m_driveTrain = new DriveTrain();
@@ -71,6 +80,9 @@ public class RobotContainer {
     m_outCommand = new FeedOut(m_intake);
     m_feedStopCommand = new FeedStop(m_intake);
 
+    m_dumpAndBackUpCommand = new DumpAndBackUp(m_driveTrain, m_intake);
+    m_backUpCommand = new BackUp(m_driveTrain);
+
     m_xboxController = new XboxController(IOConstants.kDriverControllerPort);
 
     m_driveTrain.setDefaultCommand(
@@ -84,6 +96,12 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    m_chooser = new SendableChooser<Command>();
+    m_chooser.setDefaultOption("DumpAndBackUp", m_dumpAndBackUpCommand);
+    m_chooser.addOption("BackUp", m_backUpCommand);
+
+    SmartDashboard.putData(m_chooser);
 
     CameraServer.startAutomaticCapture();
   }
