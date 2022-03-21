@@ -4,39 +4,26 @@
 
 package frc.robot;
 
-import java.util.List;
-
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.RamseteController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.FeedIn;
 import frc.robot.commands.FeedOut;
 import frc.robot.commands.FeedStop;
 import frc.robot.commands.LowerArm;
 import frc.robot.commands.RaiseArm;
+import frc.robot.commands.ScoreTwice;
 import frc.robot.commands.StopArm;
+import frc.robot.commands.WaitForwardDumpBack;
 import frc.robot.commands.DumpAndBackUp;
 import frc.robot.commands.BackUp;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -63,6 +50,8 @@ public class RobotContainer {
 
   private final DumpAndBackUp m_dumpAndBackUpCommand;
   private final BackUp m_backUpCommand;
+  private final WaitForwardDumpBack m_waitDumpBackCommand;
+  private final ScoreTwice m_scoreTwice;
 
   public static SendableChooser<Command> m_chooser;
 
@@ -82,6 +71,8 @@ public class RobotContainer {
 
     m_dumpAndBackUpCommand = new DumpAndBackUp(m_driveTrain, m_intake);
     m_backUpCommand = new BackUp(m_driveTrain);
+    m_waitDumpBackCommand = new WaitForwardDumpBack(m_driveTrain, m_intake);
+    m_scoreTwice = new ScoreTwice(m_driveTrain, m_intake, m_arm);
 
     m_xboxController = new XboxController(IOConstants.kDriverControllerPort);
 
@@ -91,7 +82,7 @@ public class RobotContainer {
       new RunCommand(
           () ->
               m_driveTrain.arcadeDrive(
-                m_xboxController.getRightX(), -m_xboxController.getLeftY()),
+                -m_xboxController.getLeftY(), m_xboxController.getRightX()),
           m_driveTrain));
 
     // Configure the button bindings
@@ -100,6 +91,8 @@ public class RobotContainer {
     m_chooser = new SendableChooser<Command>();
     m_chooser.setDefaultOption("DumpAndBackUp", m_dumpAndBackUpCommand);
     m_chooser.addOption("BackUp", m_backUpCommand);
+    m_chooser.addOption("WaitDumpBack", m_waitDumpBackCommand);
+    m_chooser.addOption("ScoreTwice", m_scoreTwice);
 
     SmartDashboard.putData(m_chooser);
 
@@ -125,59 +118,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // Create a voltage constraint to ensure we don't accelerate too fast
-    var autoVoltageConstraint =
-        new DifferentialDriveVoltageConstraint(
-            new SimpleMotorFeedforward(
-                DriveConstants.ksVolts,
-                DriveConstants.kvVoltSecondsPerMeter,
-                DriveConstants.kaVoltSecondsSquaredPerMeter),
-            DriveConstants.kDriveKinematics,
-            10);
-
-    // Create config for trajectory
-    TrajectoryConfig config =
-        new TrajectoryConfig(
-                AutoConstants.kMaxSpeedMetersPerSecond,
-                AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-            // Add kinematics to ensure max speed is actually obeyed
-            .setKinematics(DriveConstants.kDriveKinematics)
-            // Apply the voltage constraint
-            .addConstraint(autoVoltageConstraint);
-
-    // An example trajectory to follow.  All units in meters.
-    Trajectory exampleTrajectory =
-        TrajectoryGenerator.generateTrajectory(
-            // Start at the origin facing the +X direction
-            new Pose2d(0, 0, new Rotation2d(0)),
-            // Pass through these two interior waypoints, making an 's' curve path
-            List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-            // End 3 meters straight ahead of where we started, facing forward
-            new Pose2d(3, 0, new Rotation2d(0)),
-            // Pass config
-            config);
-
-    RamseteCommand ramseteCommand =
-        new RamseteCommand(
-            exampleTrajectory,
-            m_driveTrain::getPose,
-            new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
-            new SimpleMotorFeedforward(
-                DriveConstants.ksVolts,
-                DriveConstants.kvVoltSecondsPerMeter,
-                DriveConstants.kaVoltSecondsSquaredPerMeter),
-            DriveConstants.kDriveKinematics,
-            m_driveTrain::getWheelSpeeds,
-            new PIDController(DriveConstants.kPDriveVel, 0, 0),
-            new PIDController(DriveConstants.kPDriveVel, 0, 0),
-            // RamseteCommand passes volts to the callback
-            m_driveTrain::tankDriveVolts,
-            m_driveTrain);
-
-    // Reset odometry to the starting pose of the trajectory.
-    m_driveTrain.resetOdometry(exampleTrajectory.getInitialPose());
-
-    // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> m_driveTrain.tankDriveVolts(0, 0));
+    return m_chooser.getSelected();
   }
 }

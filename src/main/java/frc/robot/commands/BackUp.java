@@ -7,7 +7,7 @@ public class BackUp extends SequentialCommandGroup {
 
   public BackUp(DriveTrain drivetrain) {
     addCommands(
-      new AutoDrive(drivetrain, -0.5).withTimeout(1.5)
+      new AutoDrive(drivetrain, -1).withTimeout(1.2)
     );
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
